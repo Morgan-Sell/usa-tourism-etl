@@ -4,46 +4,63 @@ import psycopg2
 import pandas as pd
 
 # STAGING TABLES
-staging_visits_drop = "DROP TABLE IF EXISTS staging_visits"
-staging_weather_drop = "DROP TABLE IF EXISTS staging_weather"
-staging_usa_cities_drop = "DROP TABLE IF EXISTS staging_usa_cities"
+staging_visits_table_drop = "DROP TABLE IF EXISTS staging_visits"
+staging_weather_table_drop = "DROP TABLE IF EXISTS staging_weather"
+staging_cities_table_drop = "DROP TABLE IF EXISTS staging_cities"
+staging_airports_table_drop = "DROP TABLE IF EXISTS staging_airports"
 
 
 
 
 # CREATE TABLES
-staging_visits_table = ("""
+staging_visits_table_create = ("""
     CREATE TABLE IF NOT EXISTS staging_visits (
-        visit_id SERIAL PRIMARY KEY,
-        tourist_id INTEGER NOT NULL FOREIGN KEY,
-        arr_date NOT NULL DATE FOREIGN KEY,
-        depart_date NOT NULL DATE,
-        citizenship_id,
-        airport_id VARCHAR(5) NOT NULL,
-        airport_name VARCHAR(60),
-        city_id VARCHAR(5) NOT NULL,
-        city_name VARCHAR(60),
-        mode_of_travel VARCHAR(15),
-        airline VARCHAR(30),
-        visa_post VARCHAR(40),
-        visa_type VARCHAR(4),
-        birth_year INTEGER,
-        gender VARCHAR(2)   
+        visit_id              VARCHAR,
+        tourist_id            VARCHAR,
+        arr_date              DATE,
+        depart_date           DATE,
+        citizenship_id        VARCHAR,
+        airport_id            VARCHAR,
+        airport_name          VARCHAR,
+        city_id               VARCHAR,
+        city_name             VARCHAR,
+        mode_of_travel        VARCHAR,
+        airline               VARCHAR,
+        visa_post             VARCHAR,
+        visa_type             VARCHAR,
+        birth_year            INT,
+        gender                VARCHAR  
     )
 """)
 
-staging_weather_table = ("""
+staging_weather_table_create = ("""
     CREATE TABLE IF NOT EXISTS staging_weather (
-        weather_id SERIAL PRIMARY KEY,
-        date DATE NOT NULL,
-        city_id NOT NULL,
-        avg_daily_temp DECIMAL NOT NULL,
-        avg_daily_temp_uncrtnty DECIMAL,
-        lattitude VARCHAR(10),
-        longitude VARCHAR(10)
-    
+        date                  DATE,
+        city_name             VARCHAR,
+        avg_daily_temp        FLOAT8,
+        avg_daily_temp_var    FLOAT8,
+        lattitude             VARCHAR,
+        longitude             VARCHAR
     )
-
-
-
 """)
+
+staging_cities_table_create = ("""
+    CREATE TABLE IF NOT EXISTS staging_cities (
+        city                  VARCHAR,
+        state                 VARCHAR,
+        median_age            FLOAT8,
+        male_pop              INT,
+        female_pop            INT,
+        total_pop             INT,
+        num_veterans          INT,
+        avg_house_size        FLOAT8
+    )
+""")
+
+
+
+
+# QUERY LISTS
+drop_table_queries = [staging_visits_table_drop, staging_weather_table_drop, staging_cities_table_drop]
+create_table_queries = [staging_visits_table_create, staging_weather_table_create, staging_cities_table_create]
+
