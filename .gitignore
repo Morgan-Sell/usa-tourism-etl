@@ -132,3 +132,4 @@ dmypy.json
 /data
 config.py
 dwh.cfg
+/test_output
