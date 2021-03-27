@@ -9,20 +9,10 @@ from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, dat
 from pyspark.sql.types import TimestampType, DateType, StringType
 from pyspark.sql import functions as F
 
-def create_spark_session():
-    spark = SparkSession \
-        .builder \
-        .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:2.7.0") \
-        .getOrCreate()
-    return spark
-
-
 def create_spark_session(config_app_name, session_app_name):
     """ 
     Configures and initiates a Spark connection/session
-    
 
-    
     """
     
     configure = SparkConf() \
@@ -68,9 +58,9 @@ def process_airports_data(spark, input_data, output_data):
             "elevation_ft"]).where(df.iso_country=="US")
     
     # Revise numeric values data types
-    df2 = df2.withColumn("latitude", airports.latitude.cast('float')) \
-            .withColumn("longitude", airports.longitude.cast('float')) \
-            .withColumn("elevation_fit", airports.elevation_ft.cast('integer'))
+    df2 = df2.withColumn("latitude", df2.latitude.cast('float')) \
+            .withColumn("longitude", df2.longitude.cast('float')) \
+            .withColumn("elevation_fit", df2.elevation_ft.cast('integer'))
     
     # Sort 
     df2 = df2.sort('iata_code', ascending=True) \
@@ -86,24 +76,27 @@ def process_cities_demographics_data(spark, input_data, output_data):
     Returns the data as a semi-schematized parquet file.
 
     """
-
-    df = spark.read.option("header", True) \ 
+    df = spark.read.option("header", True) \
             .option('delimiter', ";") \
             .csv(output_data)
     
     df2 = df
 
     # Rename columns
-    original_names = ["City", "State", "Median Age", "Male Population",
-                    "Female Population", "Total Population", "Number of Veterans",
-                    "Foreign-born", "Average Household Size", "State Code", "Race", "Count"]
+    cities_cols_rename = {'City': 'city',
+                        'State': 'state',
+                        'Median Age': 'median_age',
+                        'Male Population': 'male_pop',
+                        'Female Population': 'female_pop',
+                        'Total Population': 'total_pop',
+                        'Number of Veterans': 'num_veterans',
+                        'Foreign-born': 'num_foreigners',
+                        'Average Household Size': 'avg_household_size',
+                        'State Code': 'state_code',
+                        'Race': 'race',
+                        'Count': 'race_pop'}
 
-    revised_names = ["city", "state", "median_age", "male_pop",
-                    "female_pop", "total_pop", "num_veterans",
-                    "num_foreigners", "avg_household_size",
-                    "state_code", "race", "race_pop"]
-
-    for original, revised in zip(original_names, revised_names):
+    for original, revised in cities_cols_rename.items():
         df2 = df2.withColumnRenamed(original, revised)
 
     df2 = df2.withColumn("state_city", F.concat_ws("_", cities.state_code, cities.city))
@@ -127,3 +120,16 @@ def process_cities_demographics_data(spark, input_data, output_data):
     # join dataframes
     df3 = df2.join(race_count, df2.state_city == race.state_city)
     df3 = df3.drop("race", "race_pop", "state_city", "state_city")
+
+    # rename race-related columns
+    race_cols_rename = {"American Indian and Alaska Native": "native_american_pop",
+                        "Asian": "asian_pop",
+                        "Black or African-American": "black_american_pop",
+                        "Hispanic or Latino": "hispanic_pop",
+                        "White": "white_pop"}
+             
+    for original, revised in race_cols_rename.items():
+        df3 = df3.withColumnRenamed(original, revised)
+
+    # Export data to a parquet file
+    df3.write.mode('overwrite').parquet(os.path.join(output_data, "cities_demographics"))
