@@ -22,5 +22,5 @@ spark = create_spark_session(config_app_name, session_app_name)
 output_data = "test_output/"
 
 # Test aiport data function
-input_data = "data/airport_codes.csv"
-process_airports_data(spark, input_data, output_data)
+input_data = "data/us_cities_demographics.csv"
+process_cities_demographics_data(spark, input_data, output_data)

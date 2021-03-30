@@ -9,6 +9,9 @@ from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, dat
 from pyspark.sql.types import TimestampType, DateType, StringType
 from pyspark.sql import functions as F
 
+from datetime import datetime, timedelta
+import os
+
 def create_spark_session(config_app_name, session_app_name):
     """ 
     Configures and initiates a Spark connection/session
@@ -76,30 +79,30 @@ def process_cities_demographics_data(spark, input_data, output_data):
     Returns the data as a semi-schematized parquet file.
 
     """
-    df = spark.read.option("header", True) \
-            .option('delimiter', ";") \
-            .csv(output_data)
+    df = spark.read.option('header', True) \
+                .option('delimiter', ";") \
+                .csv(input_data)
     
     df2 = df
 
     # Rename columns
-    cities_cols_rename = {'City': 'city',
-                        'State': 'state',
-                        'Median Age': 'median_age',
-                        'Male Population': 'male_pop',
-                        'Female Population': 'female_pop',
-                        'Total Population': 'total_pop',
-                        'Number of Veterans': 'num_veterans',
-                        'Foreign-born': 'num_foreigners',
-                        'Average Household Size': 'avg_household_size',
-                        'State Code': 'state_code',
-                        'Race': 'race',
-                        'Count': 'race_pop'}
+    cities_cols_rename = {"City": "city",
+                        "State": "state",
+                        "Median Age": "median_age",
+                        "Male Population": "male_pop",
+                        "Female Population": "female_pop",
+                        "Total Population": "total_pop",
+                        "Number of Veterans": "num_veterans",
+                        "Foreign-born": "num_foreigners",
+                        "Average Household Size": "avg_household_size",
+                        "State Code": "state_code",
+                        "Race": "race",
+                        "Count": "race_pop"}
 
     for original, revised in cities_cols_rename.items():
         df2 = df2.withColumnRenamed(original, revised)
 
-    df2 = df2.withColumn("state_city", F.concat_ws("_", cities.state_code, cities.city))
+    df2 = df2.withColumn("state_city", F.concat_ws("_", df2.state_code, df2.city))
 
     # Cast values to numeric
     integer_vars = ["male_pop", "female_pop", "total_pop", "num_veterans", "num_foreigners", "race_pop"]
@@ -118,7 +121,7 @@ def process_cities_demographics_data(spark, input_data, output_data):
     race = race.groupBy("state_city").pivot("race").agg(F.first("race_pop"))
 
     # join dataframes
-    df3 = df2.join(race_count, df2.state_city == race.state_city)
+    df3 = df2.join(race, df2.state_city == race.state_city)
     df3 = df3.drop("race", "race_pop", "state_city", "state_city")
 
     # rename race-related columns
