@@ -136,3 +136,36 @@ def process_cities_demographics_data(spark, input_data, output_data):
 
     # Export data to a parquet file
     df3.write.mode('overwrite').parquet(os.path.join(output_data, "cities_demographics"))
+
+
+def process_usa_temperature_data(spark, input_data, output_data):
+    """
+    Loads global temperature files. 
+    Returns a parquet file for the climate of U.S. cities.
+    """
+
+    df = spark.read.option('header', True).csv(input_data)
+    df2 = df.select("*").where((df.Country == "United States") & (df.dt > "1969-12-31"))
+    
+    cols_rename = {"dt": "date_time",
+                    "AverageTemperature": "avg_daily_temp",
+                    "AverageTemperatureUncertainty": "avg_temp_uncertainty",
+                    "City": "city",
+                    "Latitude": "latitude",
+                    "Longitude": "longitude"}
+    
+    for original, revised in cols_rename.items():
+        df2 = df2.withColumnRenamed(original, revised)
+    
+    df2 = df2.withColumn("lat_length", F.length("latitude")) \
+            .withColumn("long_length", F.length("longitude")) \
+            .withColumn("latitude_2", F.expr("""substr(latitude, 1, lat_length-1)""")) \
+            .withColumn("longitude_2", F.expr("""substr(longitude, 1, long_length-1)"""))
+    
+    df2 = df2.withColumn("latitude", df2.latitude_2.cast('float')) \
+            .withColumn("longitude", df2.longitude_2.cast('float'))
+
+    df2 = df2.withColumn("longitude", -1 * col("longitude"))
+    df2 = df2.drop("Country", "lat_length", "long_length", "latitude_2", "longitude_2")
+    
+    df2.write.mode('overwrite').parquet(os.path.join(output_data, "usa_temperatures"))
