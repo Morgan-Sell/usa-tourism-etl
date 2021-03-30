@@ -12,6 +12,8 @@ from pyspark.sql import functions as F
 from datetime import datetime, timedelta
 import os
 
+import config
+
 def create_spark_session(config_app_name, session_app_name):
     """ 
     Configures and initiates a Spark connection/session
@@ -85,33 +87,18 @@ def process_cities_demographics_data(spark, input_data, output_data):
     
     df2 = df
 
-    # Rename columns
-    cities_cols_rename = {"City": "city",
-                        "State": "state",
-                        "Median Age": "median_age",
-                        "Male Population": "male_pop",
-                        "Female Population": "female_pop",
-                        "Total Population": "total_pop",
-                        "Number of Veterans": "num_veterans",
-                        "Foreign-born": "num_foreigners",
-                        "Average Household Size": "avg_household_size",
-                        "State Code": "state_code",
-                        "Race": "race",
-                        "Count": "race_pop"}
-
-    for original, revised in cities_cols_rename.items():
+    for original, revised in config.USA_CITIES_RENAME_COLS.items():
         df2 = df2.withColumnRenamed(original, revised)
 
     df2 = df2.withColumn("state_city", F.concat_ws("_", df2.state_code, df2.city))
 
     # Cast values to numeric
-    integer_vars = ["male_pop", "female_pop", "total_pop", "num_veterans", "num_foreigners", "race_pop"]
-    float_vars = ["median_age", "avg_household_size"]
+    
 
-    for i_var in integer_vars:
+    for i_var in config.USA_CITIES_INTEGER_VARS:
         df2 = df2.withColumn(i_var, df2[i_var].cast('integer'))
     
-    for f_var in float_vars:
+    for f_var in config.USA_CITIES_FLOAT_VARS:
         df2 = df2.withColumn(f_var, df2[f_var].cast('float'))
 
     df2 = df2.dropDuplicates(["state_city"])
@@ -123,15 +110,8 @@ def process_cities_demographics_data(spark, input_data, output_data):
     # join dataframes
     df3 = df2.join(race, df2.state_city == race.state_city)
     df3 = df3.drop("race", "race_pop", "state_city", "state_city")
-
-    # rename race-related columns
-    race_cols_rename = {"American Indian and Alaska Native": "native_american_pop",
-                        "Asian": "asian_pop",
-                        "Black or African-American": "black_american_pop",
-                        "Hispanic or Latino": "hispanic_pop",
-                        "White": "white_pop"}
              
-    for original, revised in race_cols_rename.items():
+    for original, revised in config.RACE_RENAME_COLS.items():
         df3 = df3.withColumnRenamed(original, revised)
 
     # Export data to a parquet file
@@ -147,14 +127,7 @@ def process_usa_temperature_data(spark, input_data, output_data):
     df = spark.read.option('header', True).csv(input_data)
     df2 = df.select("*").where((df.Country == "United States") & (df.dt > "1969-12-31"))
     
-    cols_rename = {"dt": "date_time",
-                    "AverageTemperature": "avg_daily_temp",
-                    "AverageTemperatureUncertainty": "avg_temp_uncertainty",
-                    "City": "city",
-                    "Latitude": "latitude",
-                    "Longitude": "longitude"}
-    
-    for original, revised in cols_rename.items():
+    for original, revised in config.TEMPERATURE_RENAME_COLS.items():
         df2 = df2.withColumnRenamed(original, revised)
     
     df2 = df2.withColumn("lat_length", F.length("latitude")) \
