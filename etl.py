@@ -142,3 +142,43 @@ def process_usa_temperature_data(spark, input_data, output_data):
     df2 = df2.drop("Country", "lat_length", "long_length", "latitude_2", "longitude_2")
     
     df2.write.mode('overwrite').parquet(os.path.join(output_data, "usa_temperatures"))
+
+
+    def convert_datetime(num_days):
+        try:
+            start = datetime(1960, 1, 1)
+            return start + timedelta(days=(num_days))
+        except:
+            return None
+    
+    def process_usa_tourism_data(spark, tourism_data, airport_codes,
+                                country_codes, output_data):
+    """
+    Loads and process the U.S. tourism SAS files.
+    Joins tourism data with airport_codes and countries.
+    Returns PySpark dataframe as partitioned parquet files.
+    """
+
+    tourism = spark.read.option('header', True) \
+                    .option('delimiter', ";") \
+                    .csv(tourism_data)
+    
+    airports = spark.read.option('header', True).csv(airport_codes)
+    countries = spark.read.option('header', True).csv(country_codes)
+
+    # Create airport-cities dictionary
+    airports2 = airports.withColumn("city", F.split(col("airport"), ",").getItem(0))
+    airports2 = airports2.withColumn("city", F.initcap("city")) \
+                        .drop("airport")
+    
+    # Create country-I94 code dictionary
+    udf_datetime_from_sas = udf(lambda x: convert_datetime(x), DateType())
+    countries2 = countries.withColumn("country", F.initcap("country")) \
+                        .withColumn("country_code", df3["country_code"].cast('integer'))
+
+    
+    # Process tourism data
+    udf_datetime_from_sas = udf(lambda x: convert_datetime(x), DateType())
+
+    tourism2 = tourism.withColumn("arrival_date", udf_datetime_from_sas("arrdate")) \
+                .withColumn("departure_date", udf_datetime_from_sas("depdate"))
