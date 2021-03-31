@@ -14,6 +14,7 @@ import os
 
 import config
 
+
 def create_spark_session(config_app_name, session_app_name):
     """ 
     Configures and initiates a Spark connection/session
@@ -181,4 +182,32 @@ def process_usa_temperature_data(spark, input_data, output_data):
     udf_datetime_from_sas = udf(lambda x: convert_datetime(x), DateType())
 
     tourism2 = tourism.withColumn("arrival_date", udf_datetime_from_sas("arrdate")) \
-                .withColumn("departure_date", udf_datetime_from_sas("depdate"))
+                .withColumn("departure_date", udf_datetime_from_sas("depdate")) \
+                .drop("insnum", "dtadfile", "fltno", 'i94bir', "occup", "matflag",
+                    "admnum", "entdepu", "visapost", "arrdate", "depdate")
+    
+    for original, renamed in config.TOURISM_RENAME_COLS.items():
+        tourism2 = tourism2.withColumnRenamed(original, renamed)
+
+    for feature in config.TOURISM_INTEGER_VARS:
+        tourism2 = tourism2.withColumn(feature, tourism2[feature].cast('integer'))
+    
+    # Create master datafram by joining tourism2 and countries2 dataframes.
+    master = tourism2.join(countries2,
+                    tourism2.citizen_cntry_code == countries2.country_code,
+                    how ='left')
+    
+    master = master.withColumnRenamed("country", "citizen_country") \
+                    .drop("country_code")
+    
+    master = master.join(countries2,
+                    master.residency_cntry_code == countries2.country_code,
+                    how='left')
+    
+    master = master.withColumnRenamed("country", "residency_country") \
+                    .drop("country_code")
+    
+    # Join master and cities2 dataframes.
+    master = master.join(cities2, tourism_final.airport == cities_dict.airport_code, how='left')
+    master = master.withColumnRenamed("city", "airport_city") \
+                    .drop("airport_code")
