@@ -146,11 +146,17 @@ def process_usa_temperature_data(spark, input_data, output_data):
 
 
 def convert_datetime(num_days):
+    """
+    Converts a uni-codic numeric string value to a date object.
+    """
     try:
         start = datetime(1960, 1, 1)
-        return start + timedelta(days=(num_days))
+        res = start + timedelta(days=int(float((num_days))))
+        return res.date()
     except:
         return None
+    
+
     
 def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, output_data):
     """
@@ -180,8 +186,8 @@ def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, 
     # Process tourism data
     udf_datetime_from_sas = udf(lambda x: convert_datetime(x), DateType())
 
-    tourism2 = tourism.withColumn("arrival_date", udf_datetime_from_sas("arrdate")) \
-                .withColumn("departure_date", udf_datetime_from_sas("depdate")) \
+    tourism2 = tourism.withColumn("arrival_date", udf_datetime_from_sas(col("arrdate"))) \
+                .withColumn("departure_date", udf_datetime_from_sas(col("depdate"))) \
                 .drop("insnum", "dtadfile", "fltno", 'i94bir', "occup", "matflag",
                     "admnum", "entdepu", "visapost", "arrdate", "depdate")
     
