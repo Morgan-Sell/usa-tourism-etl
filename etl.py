@@ -145,15 +145,14 @@ def process_usa_temperature_data(spark, input_data, output_data):
     df2.write.mode('overwrite').parquet(os.path.join(output_data, "usa_temperatures"))
 
 
-    def convert_datetime(num_days):
-        try:
-            start = datetime(1960, 1, 1)
-            return start + timedelta(days=(num_days))
-        except:
-            return None
+def convert_datetime(num_days):
+    try:
+        start = datetime(1960, 1, 1)
+        return start + timedelta(days=(num_days))
+    except:
+        return None
     
-    def process_usa_tourism_data(spark, tourism_data, airport_codes,
-                                country_codes, output_data):
+def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, output_data):
     """
     Loads and process the U.S. tourism SAS files.
     Joins tourism data with airport_codes and countries.
@@ -211,3 +210,24 @@ def process_usa_temperature_data(spark, input_data, output_data):
     master = master.join(cities2, tourism_final.airport == cities_dict.airport_code, how='left')
     master = master.withColumnRenamed("city", "airport_city") \
                     .drop("airport_code")
+
+    # Change the categorical values from integers/characters to descriptive strings.
+    travel_mode_func = udf(lambda x: config.MODE_OF_TRAVEL.get(x), StringType())
+    travel_reason_func = udf(lambda x: config.REASON_FOR_TRAVEL.get(x), StringType())
+    maritime_signals_func = udf(lambda x: config.MARITIME_SIGNAL_FLAGS.get(x), StringType())
+
+    master = master.withColumn("travel_mode", travel_mode_func(master.travel_mode)) \
+                        .withColumn("reason_for_travel", travel_reason_func(master.reason_for_travel)) \
+                        .withColumn("maritime_status_arrival", maritime_signals_func(master.entdepa)) \
+                        .withColumn("maritime_status_departure", maritime_signals_func(master.entdepd)) \
+                        .drop("entedepa", "entdepd")
+    
+    # Add sequential ID
+    master = master.withColumn("mono_increasing_id", monotonically_increasing_id())
+    window = Window.orderBy(col("mono_increasing_id"))
+    master = master.withColumn("tourism_id", row_number().over(window))
+    master = master.drop("mono_increasing_id")
+
+
+    # Write master dataframe to parque files partitioned by year and month
+    master.write.partitionBy("year", "month").mode('overwrite').parquet(os.path.join(output_data, "tourist_visits"))
