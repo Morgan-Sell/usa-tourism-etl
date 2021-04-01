@@ -26,7 +26,7 @@ input_data = "data/us_cities_demographics.csv"
 #process_cities_demographics_data(spark, input_data, output_data)
 
 tourism_data = "data/immigration_data_sample.csv"
-airport_codes = "data/airport_codes.csv"
+airport_codes = "data/airport_dict.csv"
 country_codes = "data/country_codes.csv"
 process_usa_tourism_data(spark, tourism_data, airport_codes,
                                 country_codes, output_data)

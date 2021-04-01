@@ -174,7 +174,7 @@ def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, 
     # Create country-I94 code dictionary
     udf_datetime_from_sas = udf(lambda x: convert_datetime(x), DateType())
     countries2 = countries.withColumn("country", F.initcap("country")) \
-                        .withColumn("country_code", df3["country_code"].cast('integer'))
+                        .withColumn("country_code", countries.country_code.cast('integer'))
 
     
     # Process tourism data
