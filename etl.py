@@ -93,12 +93,11 @@ def process_cities_demographics_data(spark, input_data, output_data):
 
     df2 = df2.withColumn("state_city", F.concat_ws("_", df2.state_code, df2.city))
 
-    # Cast values to numeric
-    
-
+    # Change data types to integers
     for i_var in config.USA_CITIES_INTEGER_VARS:
         df2 = df2.withColumn(i_var, df2[i_var].cast('integer'))
     
+    # Change data types to floats
     for f_var in config.USA_CITIES_FLOAT_VARS:
         df2 = df2.withColumn(f_var, df2[f_var].cast('float'))
 
@@ -156,8 +155,7 @@ def convert_datetime(num_days):
     except:
         return None
     
-
-    
+ 
 def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, output_data):
     """
     Loads and process the U.S. tourism SAS files.
@@ -166,6 +164,7 @@ def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, 
     """
 
     tourism = spark.read.option('header', True) \
+                    .option('inferSchema', True) \
                     .csv(tourism_data)
     
     airports = spark.read.option('header', True).csv(airport_codes)
@@ -181,16 +180,13 @@ def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, 
     countries2 = countries.withColumn("country", F.initcap("country")) \
                         .withColumn("country_code", countries.country_code.cast('integer'))
 
-    
     # Process tourism data
     udf_datetime_from_sas = udf(lambda x: convert_datetime(x), DateType())
-    cols_to_drop = ["insnum", "dtadfile", "fltno", "i94bir", "occup", "matflag",
-                    "admnum", "entdepu", "visapost", "arrdate", "depdate"]
 
     #tourism2 = tourism.withColumn("arrival_date", udf_datetime_from_sas(col("arrdate"))) \
     tourism2 = tourism.withColumn("arrival_date", udf_datetime_from_sas(tourism.arrdate)) \
                 .withColumn("departure_date", udf_datetime_from_sas(tourism.depdate)) \
-                .drop(*cols_to_drop)
+                .drop(*config.DROP_TOURISM_COLS)
     
     for original, renamed in config.TOURISM_RENAME_COLS.items():
         tourism2 = tourism2.withColumnRenamed(original, renamed)
@@ -234,7 +230,6 @@ def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, 
                 .withColumn("tourism_id", monotonically_increasing_id())
     master = master.orderBy("tourism_id")
     #window = Window.orderBy(col("mono_increasing_id"))
-
 
     # Write master dataframe to parque files partitioned by year and month
     master.write.partitionBy("arrival_yr", "arrival_month").mode('overwrite').parquet(os.path.join(output_data, "tourist_visits"))
