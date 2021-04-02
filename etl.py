@@ -166,7 +166,6 @@ def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, 
     """
 
     tourism = spark.read.option('header', True) \
-                    .option('delimiter', ";") \
                     .csv(tourism_data)
     
     airports = spark.read.option('header', True).csv(airport_codes)
@@ -185,11 +184,13 @@ def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, 
     
     # Process tourism data
     udf_datetime_from_sas = udf(lambda x: convert_datetime(x), DateType())
+    cols_to_drop = ["insnum", "dtadfile", "fltno", "i94bir", "occup", "matflag",
+                    "admnum", "entdepu", "visapost", "arrdate", "depdate"]
 
-    tourism2 = tourism.withColumn("arrival_date", udf_datetime_from_sas(col("arrdate"))) \
-                .withColumn("departure_date", udf_datetime_from_sas(col("depdate"))) \
-                .drop("insnum", "dtadfile", "fltno", 'i94bir', "occup", "matflag",
-                    "admnum", "entdepu", "visapost", "arrdate", "depdate")
+    #tourism2 = tourism.withColumn("arrival_date", udf_datetime_from_sas(col("arrdate"))) \
+    tourism2 = tourism.withColumn("arrival_date", udf_datetime_from_sas(tourism.arrdate)) \
+                .withColumn("departure_date", udf_datetime_from_sas(tourism.depdate)) \
+                .drop(*cols_to_drop)
     
     for original, renamed in config.TOURISM_RENAME_COLS.items():
         tourism2 = tourism2.withColumnRenamed(original, renamed)
@@ -197,7 +198,7 @@ def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, 
     for feature in config.TOURISM_INTEGER_VARS:
         tourism2 = tourism2.withColumn(feature, tourism2[feature].cast('integer'))
     
-    # Create master datafram by joining tourism2 and countries2 dataframes.
+    # Create master dataframe by joining tourism2 and countries2 dataframes.
     master = tourism2.join(countries2,
                     tourism2.citizen_cntry_code == countries2.country_code,
                     how ='left')
@@ -212,8 +213,8 @@ def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, 
     master = master.withColumnRenamed("country", "residency_country") \
                     .drop("country_code")
     
-    # Join master and cities2 dataframes.
-    master = master.join(cities2, tourism_final.airport == cities_dict.airport_code, how='left')
+    # Join master and airports2 dataframes.
+    master = master.join(airports2, master.airport == airports2.airport_code, how='left')
     master = master.withColumnRenamed("city", "airport_city") \
                     .drop("airport_code")
 
@@ -229,11 +230,11 @@ def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, 
                         .drop("entedepa", "entdepd")
     
     # Add sequential ID
-    master = master.withColumn("mono_increasing_id", monotonically_increasing_id())
-    window = Window.orderBy(col("mono_increasing_id"))
-    master = master.withColumn("tourism_id", row_number().over(window))
-    master = master.drop("mono_increasing_id")
+    master = master.orderBy("arrival_date") \
+                .withColumn("tourism_id", monotonically_increasing_id())
+    master = master.orderBy("tourism_id")
+    #window = Window.orderBy(col("mono_increasing_id"))
 
 
     # Write master dataframe to parque files partitioned by year and month
-    master.write.partitionBy("year", "month").mode('overwrite').parquet(os.path.join(output_data, "tourist_visits"))
+    master.write.partitionBy("arrival_yr", "arrival_month").mode('overwrite').parquet(os.path.join(output_data, "tourist_visits"))
