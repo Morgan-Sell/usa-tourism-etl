@@ -47,11 +47,11 @@ def process_airports_data(spark, input_data, output_data):
             .withColumn("elevation_fit", df2.elevation_ft.cast('integer'))
     
     # Sort 
-    df2 = df2.sort('iata_code', ascending=True) \
+    df2 = df2.orderBy(["state", "iata_code"]) \
             .na.drop(subset='iata_code')
     
     # Export data to a parquet file
-    df2.write.mode('overwrite').parquet(os.path.join(output_data, "airports"))
+    df2.write.partitionBy("state").mode('overwrite').parquet(os.path.join(output_data, "airports"))
 
 
 def process_cities_demographics_data(spark, input_data, output_data):
@@ -92,8 +92,10 @@ def process_cities_demographics_data(spark, input_data, output_data):
     for original, revised in config.RACE_RENAME_COLS.items():
         df3 = df3.withColumnRenamed(original, revised)
 
+    df3 = df3.orderBy(["state", "city"])
+
     # Export data to a parquet file
-    df3.write.mode('overwrite').parquet(os.path.join(output_data, "cities_demographics"))
+    df3.write.partitionBy("state").mode('overwrite').parquet(os.path.join(output_data, "cities_demographics"))
 
 
 def process_usa_temperature_data(spark, input_data, output_data):
@@ -116,10 +118,14 @@ def process_usa_temperature_data(spark, input_data, output_data):
     df2 = df2.withColumn("latitude", df2.latitude_2.cast('float')) \
             .withColumn("longitude", df2.longitude_2.cast('float'))
 
-    df2 = df2.withColumn("longitude", -1 * col("longitude"))
-    df2 = df2.drop("Country", "lat_length", "long_length", "latitude_2", "longitude_2")
+    df2 = df2.withColumn("longitude", -1 * col("longitude")) \
+            .withColumn("year", year(df2.date)) \
+            .withColumn("month", month(df2.date)) \
+            .drop("Country", "lat_length", "long_length", "latitude_2", "longitude_2")
     
-    df2.write.mode('overwrite').parquet(os.path.join(output_data, "usa_temperatures"))
+    df2 = df2.orderBy(["date", "city"])
+
+    df2.write.partitionBy("year").mode('overwrite').parquet(os.path.join(output_data, "usa_temperatures"))
 
 
 def convert_datetime(num_days):
