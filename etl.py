@@ -2,8 +2,6 @@ import pandas as pd
 import numpy as np
 
 import configparser
-from pyspark.sql import SparkSession, Window
-from pyspark import SparkContext, SparkConf
 from pyspark.sql.functions import udf, col, monotonically_increasing_id, row_number
 from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, date_format
 from pyspark.sql.types import TimestampType, DateType, StringType
@@ -13,26 +11,6 @@ from datetime import datetime, timedelta
 import os
 
 import config
-
-
-def create_spark_session(config_app_name, session_app_name):
-    """ 
-    Configures and initiates a Spark connection/session
-
-    """
-    
-    configure = SparkConf() \
-            .setAppName(config_app_name) \
-            .setMaster('local')
-
-    sc = SparkContext(conf=configure)
-    
-    spark = SparkSession.builder \
-            .appName(session_app_name) \
-            .config('config option', 'config value') \
-            .getOrCreate()
-
-    return spark
 
 
 def process_airports_data(spark, input_data, output_data):
