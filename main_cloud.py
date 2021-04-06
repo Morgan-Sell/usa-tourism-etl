@@ -7,7 +7,7 @@ import config
 from etl import *
 
 
-config = configparser.Configparser()
+config = configparser.ConfigParser()
 config.read_file(open("dl.cfg"))
 
 os.environ["AWS_ACCESS_KEY_ID"] = config.get("AWS", "AWS_ACCESS_KEY_ID")
