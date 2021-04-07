@@ -134,3 +134,4 @@ config.py
 dl.cfg
 /test_output
 /sas_data
+config_aws.py
