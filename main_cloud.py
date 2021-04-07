@@ -3,23 +3,33 @@ from pyspark import SparkContext, SparkConf
 import os
 import configparser
 
-import config
+import config, config_aws
 from etl import *
 
 
 config = configparser.ConfigParser()
 config.read_file(open("dl.cfg"))
 
-os.environ["AWS_ACCESS_KEY_ID"] = config.get("AWS", "AWS_ACCESS_KEY_ID")
-os.environ["AWS_SECRET_ACCESS_KEY"] = config.get("AWS", "AWS_SECRET_ACCESS_KEY")
+os.environ["AWS_ACCESS_KEY_ID"] = config_aws.AWS_ACCESS_KEY_ID
+os.environ["AWS_SECRET_ACCESS_KEY"] = config_aws.AWS_SECRET_ACCESS_KEY
 
-DL_AIRPORT_DATA = config.get("S3", "AIRPORT_DATA")
+"""
+DL_AIRPORT_DATA = config.get("S3","AIRPORT_DATA")
 DL_USA_CITIES_DATA = config.get("S3", "USA_CITIES_DATA")
 DL_WEATHER_DATA = config.get("S3", "WEATHER_DATA")
 DL_TOURISM_DATE = config.get("S3", "TOURISM_DATA")
 DL_AIRPORT_CODES = config.get("S3", "AIRPORT_CODES")
 DL_COUNTRY_CODES = config.get("S3", "COUNTRY_CODES")
 DL_OUTPUT_PATH = config.get("S3", "OUTPUT_PATH")
+"""
+
+DL_AIRPORT_DATA = config_aws.AIRPORT_DATA
+DL_USA_CITIES_DATA = config_aws.USA_CITIES_DATA
+DL_WEATHER_DATA = config_aws.WEATHER_DATA
+DL_TOURISM_DATE = config_aws.TOURISM_DATA
+DL_AIRPORT_CODES = config_aws.AIRPORT_CODES
+DL_COUNTRY_CODES = config_aws.COUNTRY_CODES
+DL_OUTPUT_PATH = config_aws.OUTPUT_PATH
 
 
 def create_spark_session():
