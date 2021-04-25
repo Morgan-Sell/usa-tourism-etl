@@ -130,7 +130,6 @@ dmypy.json
 
 # added files/folders
 /data
-config.py
 dl.cfg
 /test_output
 /sas_data
