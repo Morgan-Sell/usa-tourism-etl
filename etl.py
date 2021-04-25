@@ -222,3 +222,25 @@ def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, 
 
     # Write master dataframe to parque files partitioned by year and month
     master.write.partitionBy("arrival_yr", "arrival_month").mode('overwrite').parquet(os.path.join(output_data, "tourist_visits"))
+    
+
+def main():
+
+    spark = create_spark_session()
+    
+    AIRPORT_DATA="s3a://udac-capstone/airports.csv"
+    TOURISM_DATA="s3a://udac-capstone/tourism_data/*"
+    USA_CITIES_DATA="s3a://udac-capstone/us_cities_demographics.csv"
+    WEATHER_DATA="s3a://udac-capstone/GlobalLandTemperaturesByCity.csv"
+    AIRPORT_CODES="s3a://udac-capstone/airport_codes.csv"
+    COUNTRY_CODES="s3a://udac-capstone/country_codes.csv"
+    OUTPUT_PATH = "s3a://udac-capstone-output/"
+
+    process_airports_data(spark, AIRPORT_DATA, OUTPUT_PATH)
+    process_cities_demographics_data(spark, USA_CITIES_DATA, OUTPUT_PATH)
+    process_usa_temperature_data(spark, WEATHER_DATA, OUTPUT_PATH)
+    process_usa_tourism_data(spark, TOURISM_DATA, AIRPORT_CODES, COUNTRY_CODES, OUTPUT_PATH)
+
+
+if __name__ == '__main__':
+    main()

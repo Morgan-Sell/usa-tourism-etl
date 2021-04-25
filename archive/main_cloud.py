@@ -46,6 +46,8 @@ def create_spark_session():
 def main():
 
     spark = create_spark_session()
+    
+    
 
     process_airports_data(spark, DL_AIRPORT_DATA, DL_OUTPUT_PATH)
     process_cities_demographics_data(spark, DL_USA_CITIES_DATA, DL_OUTPUT_PATH)
