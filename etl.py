@@ -1,16 +1,21 @@
 import pandas as pd
 import numpy as np
 
-import configparser
 from pyspark.sql.functions import udf, col, monotonically_increasing_id, row_number
 from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, date_format
 from pyspark.sql.types import TimestampType, DateType, StringType
 from pyspark.sql import functions as F
 
-from datetime import datetime, timedelta
-import os
 
-import config
+def create_spark_session():
+    """ 
+    Create spark entry point
+    """
+    spark = SparkSession \
+            .builder \
+            .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:2.7.0") \
+            .getOrCreate()
+    return spark
 
 
 def process_airports_data(spark, input_data, output_data):
