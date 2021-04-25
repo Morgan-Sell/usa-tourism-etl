@@ -1,6 +1,5 @@
-import pandas as pd
-import numpy as np
-
+from pyspark.sql import SparkSession
+from pyspark import SparkContext, SparkConf
 from pyspark.sql.functions import udf, col, monotonically_increasing_id, row_number
 from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, date_format
 from pyspark.sql.types import TimestampType, DateType, StringType
@@ -144,7 +143,7 @@ def convert_datetime(num_days):
     except:
         return None
     
- 
+
 def process_usa_tourism_data(spark, tourism_data, airport_codes, country_codes, output_data):
     """
     Loads and process the U.S. tourism SAS files.
