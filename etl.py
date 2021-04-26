@@ -5,6 +5,8 @@ from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, dat
 from pyspark.sql.types import TimestampType, DateType, StringType
 from pyspark.sql import functions as F
 
+import config
+
 
 def create_spark_session():
     """ 
