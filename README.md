@@ -1,7 +1,7 @@
 # USA Tourism Trends
 ### Analyzing the Drivers of Foreigner Travel Trends
 
-<img src="https://https://github.com/Morgan-Sell/usa-tourism-etl/tree/main/img/main_tourism.jpeg" width="850" height="275">
+<img src="https://github.com/Morgan-Sell/usa-tourism-etl/blob/main/img/main_tourism.jpeg" width="850" height="275">
 
 ## Project Overview
 
