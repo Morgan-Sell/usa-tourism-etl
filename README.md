@@ -5,8 +5,27 @@
 
 ## Project Overview
 
-In 2019, the United States hosted more than 79 million international tourists. These visitors add to the country's diverse social fabric and contribute to its thriving economy. The U.S. government, tourism industry and other would benefit from a well-organized data lake that would enable a better decision framework. Therefore, the United States Travel Association (USTA) contracted our team do design and implement an ETL pipeline that results in a data lake.
+In 2019, the United States hosted more than 79 million international tourists. These visitors add to the country's diverse social fabric and contribute to its thriving economy. On average, **more than 9,000 people arrive to the U.S. every hour**. Consequently, the United States Travel Association (USTA) decided that it's in everyone best interest - e.g., government, private sectors, U.S Cctizens, and foreigners - to have a centralized source that provides a organized data on factors that are relevant to tourism.
 
-One of the main reasons for implementing a data lake is the scale of the U.S. tourism sector. On average, more tha 9,000 arrive to the U.S. every hour. Our goal was to capture each individual. We We also incorporated other data sources - e.g. weather and locational socioeconomic data - into the data lake. 
+The USTA contracted our team to design and implemented a solution. We proposed and implemented a data lake constructing on AWS technology stack. The process that extracts all of the information from various data sources, transforms them into a "semi-schematized" structure using Elacstic MapReduce (EMR) and Spark then loads the data into S3.
 
-Additionally, the USTA is not the primary user of this data. There are various stakeholders, who all have difference interests/requirements. Developing a schematized database would place constraints on the end users. A data lake provides more flexibility for each end user's application.
+A few reasons that we selected a data lake instead of a data warehouse:
+1. Multiple data sources using different data formats
+2. Different end-users with dissimilar requirements
+3. Allowment of big data technology like Hadoop, EMR, and Spark
+4. High data volume
+
+
+### Data Sources:
+
+The data lake coaslesces a variety of types of data from various sources:
+- US National Tourism and Trade Office 
+- Lawrence Berkeley National Laboratory (LBNL)
+- International Air Transport Association (IATA)
+- United States Census Bureau
+
+
+## ETL Architecture
+
+By using AWS, we could implement distributed computing to improve the ETL's performance. AWS provides EMR which allows us to manage a cluster comprised of one master node and a large quantiy of worker nodes, which can be adjusted depending on the volumise. The diagram below summarizes the architecture.
+
