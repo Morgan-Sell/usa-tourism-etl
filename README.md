@@ -29,4 +29,4 @@ The data lake coaslesces a variety of types of data from various sources:
 
 By using AWS, we could implement distributed computing to improve the ETL's performance. AWS provides EMR which allows us to manage a cluster comprised of one master node and a large quantiy of worker nodes, which can be adjusted depending on the volumise. The diagram below summarizes the architecture.
 
-<img src="https://github.com/Morgan-Sell/usa-tourism-etl/blob/main/img/aws_flow.jpg" width="600" height="400">
+<img src="https://github.com/Morgan-Sell/usa-tourism-etl/blob/main/img/aws_flow.jpg" width="600" height="400" class="center">
