@@ -45,3 +45,13 @@ As discussed, EMR can address the change in needs in accordance with data volume
 The data lake does have its limitations. If one of the USTA's needs was to generate reports for daily morning briefings, requiring the pipelines run on a daily basis at 7 am, then schematized data warehouse would be more appropriate.
 
 However, this is not the case. Also, the USTA's partners, e.g., hotel chains, can develop their own data warehouse on top of the USTA's data lake. Hilton's desired schema and needs are most likely different than those of Southwest Airlines or local/state tourism agencies
+
+
+## Notes
+To run the program on a local CPU, execute `main_local.py` in a command-line prompt. The file will perform the ETL by running the code in the `etl.py` module.
+
+To run the program on an AWS EMR cluster, one must run the `emr_notebook.ipynb`. EMR requires a user of an EMR notebook that has a PySpark kernel to enable the use of the PySpark package.
+
+## Packages
+The following packages are used throughout the project:
+- PySpark
