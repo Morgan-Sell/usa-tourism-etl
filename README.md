@@ -30,3 +30,13 @@ The data lake coaslesces a variety of types of data from various sources:
 By using AWS, we could implement distributed computing to improve the ETL's performance. AWS provides EMR which allows us to manage a cluster comprised of one master node and a large quantiy of worker nodes, which can be adjusted depending on the volumise. The diagram below summarizes the architecture.
 
 <img src="https://github.com/Morgan-Sell/usa-tourism-etl/blob/main/img/aws_flow.jpg" width="600" height="400" class="center">
+
+A major benefit to EMR is the cluster's elasticity. It can increase and decrease the number of working virtual CPUs on demand. Given tourism's seasonality/volatility, EMR is ideal.
+
+## Addressing Other Scenario
+
+As discussed, EMR can address the change in needs in accordance with data volumen, even if the increase was 100x. 
+
+The data lake does have its limitations. If one of the USTA's needs was to generate reports for daily morning briefings, requiring the pipelines run on a daily basis at 7 am, then schematized data warehouse would be more appropriate.
+
+However, this is not the case. Also, the USTA's partners, e.g. hotel chains, can develop their own data warehouse on top of the USTA's data lake. Hilton's desired schema and needs are most likely different than those of Southwest Airlines or local/state tourism agencies.
