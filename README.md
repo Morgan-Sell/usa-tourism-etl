@@ -1,5 +1,5 @@
-# USA Tourism Trends
-### Analyzing the Drivers of Foreigner Travel Trends
+# Helping the USA Tourism Sector
+## Applying Big Data Technology to Better Equip the USTA's Partners
 
 <img src="https://github.com/Morgan-Sell/usa-tourism-etl/blob/main/img/main_tourism.jpeg" width="850" height="275">
 
