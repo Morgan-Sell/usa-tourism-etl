@@ -38,9 +38,11 @@ A wonderful benefit of EMR is its ability to adjust the number of worker nodes t
 
 ## Potential Use Cases
 
-Now that the data is a semi-schematized structure. USTA and other organizations can assess tourism trends. For example, tourist-related business may like to know which foreigners most frequently travel to the U.S. They can cater to that culture's preferences. Another task could be to evaluate whether is a correlation between international tourists and number of foreigners that live in the visited city. The tables below should the results for these analyses.
+Now that the data is a semi-schematized structure. USTA and other organizations can assess tourism trends. For example, a tourist-related business may like to know which foreigners most frequently travel to the U.S. They can cater to that culture's preferences. Another task could be to evaluate whether there is a correlation between international tourists and the number of foreigners that live in the visited city. The tables below should the results for these analyses.
 
 <img src="https://github.com/Morgan-Sell/usa-tourism-etl/blob/main/img/sample_queries.jpg" width="500" height="300" class="center">
+
+The correlation between the number of tourists and the percentage of the population that is foreigners is **0.156**. This signifies a low correlation. This data lake allows people to perform more granular analysis. For example, one could assess the correlation between cities with a concentration of Hispanics and the number of tourists visiting from Latin America. A similar analysis could be performed substituting Asians and Asia for Hispanics and Latin America, respectively.
 
 
 ## Addressing Other Scenario
