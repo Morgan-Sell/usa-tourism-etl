@@ -36,6 +36,11 @@ A wonderful benefit of EMR is its ability to adjust the number of worker nodes t
 
 <img src="https://github.com/Morgan-Sell/usa-tourism-etl/blob/main/img/aws_flow.jpg" width="600" height="400" class="center">
 
+## Potential Use Cases
+
+Now that the data is a semi-schematized structure. USTA and other organizations can assess tourism trends. For example, tourist-related business may like to know which foreigners most frequently travel to the U.S. They can cater to that culture's preferences. Another task could be to evaluate whether is a correlation between international tourists and number of foreigners that live in the visited city. The tables below should the results for these analyses.
+
+<img src="https://github.com/Morgan-Sell/usa-tourism-etl/blob/main/img/sample_queries.jpg" width="500" height="300" class="center">
 
 
 ## Addressing Other Scenario
