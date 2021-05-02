@@ -44,6 +44,13 @@ Now that the data is a semi-schematized structure. USTA and other organizations 
 
 The correlation between the number of tourists and the percentage of the population that is foreigners is **0.156**. This signifies a low correlation. This data lake allows people to perform more granular analysis. For example, one could assess the correlation between cities with a concentration of Hispanics and the number of tourists visiting from Latin America. A similar analysis could be performed substituting Asians and Asia for Hispanics and Latin America, respectively.
 
+## Data Model
+
+Being designed as a data lake, the data model is "semi-schematized". There are relationships among the tables; however, the schema is not designed as a star or snowflake. As mentioned, we expect other organizations to build their own data warehouses on top of the USTA's data lake. Therefore, we did not want to force relationships.
+
+The diagram below shows the data model.
+
+<img src="https://github.com/Morgan-Sell/usa-tourism-etl/blob/main/img/data_model.png" width="250" height="500">
 
 ## Addressing Other Scenario
 
