@@ -50,9 +50,9 @@ Being designed as a data lake, the data model is "semi-schematized". There are r
 
 The diagram below shows the data model.
 
-<img src="https://github.com/Morgan-Sell/usa-tourism-etl/blob/main/img/data_model.png" width="250" height="500">
+<img src="https://github.com/Morgan-Sell/usa-tourism-etl/blob/main/img/data_model.jpg" width="375" height="500">
 
-## Addressing Other Scenario
+## Addressing Other Scenarios
 
 As discussed, EMR can address the change in needs in accordance with data volume, even if the increase was 100x. 
 
