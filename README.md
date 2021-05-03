@@ -64,7 +64,7 @@ However, this is not the case. Also, the USTA's partners, e.g., hotel chains, ca
 ## Notes
 To run the program on a local CPU, execute `main_local.py` in a command-line prompt. The file will perform the ETL by running the code in the `etl.py` module.
 
-To run the program on an AWS EMR cluster, one must run the `emr_notebook.ipynb`. EMR requires a user of an EMR notebook that has a PySpark kernel to enable the use of the PySpark package.
+To run the program on an AWS EMR cluster, one must run the `etl_emr_notebook.ipynb`. EMR requires a user of an EMR notebook that has a PySpark kernel to enable the use of the PySpark package.
 
 ## Packages
 The following packages are used throughout the project:
